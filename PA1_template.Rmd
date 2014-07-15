@@ -1,20 +1,152 @@
-# Reproducible Research: Peer Assessment 1
 
+#### Reproducible Research: Peer Assignment 1
+#### Author: Nadya Filipova
+#### Date: Saturday, July 12, 2014
 
-## Loading and preprocessing the data
+=========================================================
 
-
-
-## What is mean total number of steps taken per day?
-
-
-
-## What is the average daily activity pattern?
+The goal of the this analysis is initial exploratory investigation of the Activity data.
 
 
 
-## Imputing missing values
+##### 1. Loading and modifying the raw data.
+
+```{r}
+mydata<-read.csv("C:/Documents and Settings/Nadya/Desktop/coursera/reproducible_research/activity.csv")
+```
+
+Some initial exploratory investigation of the data shows that there are 17,568 observations and 3 variables, of them two integer and one factor variable and summary statistics.
+
+```{r}
+names(mydata)
+head(mydata,5)
+dim(mydata)
+class(mydata)
+summary(mydata)
+table(mydata$date)
+sapply(mydata,class)
+```
+
+The date variable is a factor variable and we need to convert it to a date variable.
+
+```{r}
+mydata$date<-as.Date(mydata$date)
+class(mydata$date)
+```
 
 
 
-## Are there differences in activity patterns between weekdays and weekends?
+##### 2. Total number of steps per day
+
+Histogram of Total Number of Steps per Day and summary statistics  are presented below:
+
+```{r}
+totalsteps<-as.vector(tapply(mydata$steps,mydata$date,sum))
+hist(totalsteps,breaks=20,xlab="Total Number of Steps per Day",main="Total Number of Steps per Day")
+
+summary(totalsteps,digits=5)
+
+```
+
+The mean is 10,766, and the median 10,765 total steps per day which indicates almost symmetrical distribution. This excludes missing values. If we leave the NA values in the calculations, the results of the mean and median are NAs.
+
+
+
+##### 3. Average daily activity pattern
+
+To create a time series plot of average number of steps per 5-minute interval we first need to modify the data. Average number of steps per 5-minute interval will be used later to impute missing values.
+
+```{r}
+dataday<-tapply(mydata$steps,mydata$interval,mean,na.rm=TRUE)
+dataday<-cbind(as.numeric(rownames(dataday)),as.data.frame(dataday))
+names<-c("interval","avgsteps")
+colnames(dataday)<-names
+
+class(dataday$interval)
+class(dataday$avgsteps)
+```
+
+Time series plot of the average number of steps in 5-minute intervals is presented below:
+
+```{r}
+plot(dataday, type="l",main="Time Series Plot of 5-minute intervals and average number of steps")
+
+tail(dataday[order(dataday$avgsteps),],1)
+```
+
+The 835th 5-minute interval has the largest average number of steps.
+
+
+
+##### 4. Imputing missing values
+
+Missing values by variable are presented below. 
+
+```{r}
+sapply(mydata, function(x) sum(is.na(x)))
+bad<-mydata[!complete.cases(mydata),]
+summary(bad)
+```
+
+There are 2,304 records with missing steps in the dataset. We will impute the missing values with the average number of steps for that 5-minute interval. Histogram of the imputed data reveals that the distribution is still approximately symmetrical with long left and right tail.
+
+
+```{r}
+total<-merge(mydata,dataday,by="interval")
+
+modified<- transform(total, stepsimpute = ifelse(!is.na(steps), steps, avgsteps))
+modified<-modified[order(modified$date),]
+totalm<-as.vector(tapply(modified$stepsimpute,modified$date,sum))
+hist(totalm,breaks=20,xlab="Total Number of Steps per Day with NA values imputed",main="Total Number of Steps per Day")
+```
+
+
+
+##### 5. Differences in activity pattern between weekdays and weekends.
+
+We need to create a new factor variable for days of the week,
+
+```{r}
+modified$days<-factor(weekdays(modified$date))
+modified$weekdays<-modified$days
+levels(modified$days)
+levels(modified$weekdays)<-c("weekday","weekday","weekend","weekend","weekday","weekday","weekday")
+```
+
+Check the dataset with all derived variables.
+
+```{r}
+sapply(modified,class)
+summary(modified)
+```
+
+Time series plots by type of day is presented below.
+
+```{r}
+dataweekend<-subset(modified,weekdays=="weekend")
+dataweekdays<-subset(modified,weekdays=="weekday")
+names<-c("interval","avgsteps")
+
+dataweekendplot<-tapply(dataweekend$stepsimpute,dataweekend$interval,mean)
+dataweekendplot<-cbind(as.numeric(rownames(dataweekendplot)),as.data.frame(dataweekendplot))
+colnames(dataweekendplot)<-names
+
+dataweekdaysplot<-tapply(dataweekdays$stepsimpute,dataweekdays$interval,mean)
+dataweekdaysplot<-cbind(as.numeric(rownames(dataweekdaysplot)),as.data.frame(dataweekdaysplot))
+colnames(dataweekdaysplot)<-names
+
+par(mfrow=c(2,1))
+plot(dataweekendplot,type="l",main="Weekend")
+plot(dataweekdaysplot,type="l",main="Weekdays")
+```
+
+A second version of the trellis plot with the package "lattice" is presented below.
+
+```{r}
+dataweekendplot$days<-rep("weekend",times=nrow(dataweekendplot))
+dataweekdaysplot$days<-rep("weekdays",times=nrow(dataweekdaysplot))
+final<-rbind(dataweekdaysplot,dataweekendplot)
+summary(final)
+library(lattice)
+xyplot(avgsteps~interval|days,final,type="l",layout=c(1,2),ylab="Number of average steps")
+```
