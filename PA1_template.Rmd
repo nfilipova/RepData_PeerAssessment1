@@ -1,3 +1,8 @@
+---
+output:
+  html_document:
+    keep_md: yes
+---
 
 #### Reproducible Research: Peer Assignment 1
 #### Author: Nadya Filipova
@@ -5,7 +10,7 @@
 
 =========================================================
 
-The goal of the this analysis is initial exploratory investigation of the Activity data.
+The goal of this analysis is initial exploratory investigation of the Activity data.
 
 
 
@@ -15,7 +20,7 @@ The goal of the this analysis is initial exploratory investigation of the Activi
 mydata<-read.csv("C:/Documents and Settings/Nadya/Desktop/coursera/reproducible_research/activity.csv")
 ```
 
-Some initial exploratory investigation of the data shows that there are 17,568 observations and 3 variables, of them two integer and one factor variable and summary statistics.
+Some initial exploratory investigation of the data shows that there are 17,568 observations and 3 variables, of them two integer and one factor variable. Summary statistics are presented below.
 
 ```{r}
 names(mydata)
