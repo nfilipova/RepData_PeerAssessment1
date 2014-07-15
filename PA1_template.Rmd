@@ -15,8 +15,7 @@ The goal of the this analysis is initial exploratory investigation of the Activi
 mydata<-read.csv("C:/Documents and Settings/Nadya/Desktop/coursera/reproducible_research/activity.csv")
 ```
 
-Some initial exploratory investigation of the data shows that there are 17,568 observations and 3 variables, of 
-them two integer and one factor variable and summary statistics.
+Some initial exploratory investigation of the data shows that there are 17,568 observations and 3 variables, of them two integer and one factor variable and summary statistics.
 
 ```{r}
 names(mydata)
@@ -49,15 +48,13 @@ summary(totalsteps,digits=5)
 
 ```
 
-The mean is 10,766, and the median 10,765 total steps per day which indicates almost symmetrical distribution. 
-This excludes missing values. If we leave the NA values in the calculations, the results of the mean and median are NAs.
+The mean is 10,766, and the median 10,765 total steps per day which indicates almost symmetrical distribution. This excludes missing values. If we leave the NA values in the calculations, the results of the mean and median are NAs.
 
 
 
 ##### 3. Average daily activity pattern
 
-To create a time series plot of average number of steps per 5-minute interval we first need to modify the data. 
-Average number of steps per 5-minute interval will be used later to impute missing values.
+To create a time series plot of average number of steps per 5-minute interval we first need to modify the data. Average number of steps per 5-minute interval will be used later to impute missing values.
 
 ```{r}
 dataday<-tapply(mydata$steps,mydata$interval,mean,na.rm=TRUE)
@@ -91,10 +88,7 @@ bad<-mydata[!complete.cases(mydata),]
 summary(bad)
 ```
 
-There are 2,304 records with missing steps in the dataset. We will impute the missing values with the average 
-number of steps for that 5-minute interval. Histogram of the imputed data reveals that the distribution is 
-still approximately symmetrical with long left and right tail.
-
+There are 2,304 records with missing steps in the dataset. We will impute the missing values with the average number of steps for that 5-minute interval. Histogram of the imputed data reveals that the distribution is still approximately symmetrical with long left and right tail.
 
 
 ```{r}
