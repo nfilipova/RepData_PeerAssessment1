@@ -316,15 +316,9 @@ colnames(dataweekendplot)<-names
 dataweekdaysplot<-tapply(dataweekdays$stepsimpute,dataweekdays$interval,mean)
 dataweekdaysplot<-cbind(as.numeric(rownames(dataweekdaysplot)),as.data.frame(dataweekdaysplot))
 colnames(dataweekdaysplot)<-names
-
-par(mfrow=c(2,1))
-plot(dataweekendplot,type="l",main="Weekend")
-plot(dataweekdaysplot,type="l",main="Weekdays")
 ```
 
-![plot of chunk unnamed-chunk-11](./PA1_template_files/figure-html/unnamed-chunk-11.png) 
-
-A second version of the trellis plot with the package "lattice" is presented below.
+A version of the trellis plot with the package "lattice" is presented below.
 
 
 ```r
